@@ -28,6 +28,12 @@ DASHBOARD_HTML = os.path.join(ROOT, "index.html")  # GitHub Pages公開用
 
 LESSON_LENGTH_MIN = analyze.DEFAULT_LESSON_MINUTES  # 1授業の長さ（参考WPM用）
 
+# 目標値（1授業あたり）
+GOALS = {
+    "unique_words": 500,   # ユニーク単語数の目標
+    "wpm": 150,            # WPM（発話時間あたり）の目標
+}
+
 _NAME_RE = re.compile(r"^(\d{4}-\d{2}-\d{2})[_-](.*)$")
 
 
@@ -153,6 +159,7 @@ def write_html(rows):
         for r in rows
     )
     html = (_TEMPLATE.replace("__DATA__", data_json)
+            .replace("__GOALS__", json.dumps(GOALS))
             .replace("__TABLE__", table_rows)
             .replace("__GENERATED__", generated))
     with open(DASHBOARD_HTML, "w", encoding="utf-8") as f:
@@ -192,6 +199,11 @@ _TEMPLATE = r"""<!DOCTYPE html>
   details.spec summary { cursor:pointer; font-weight:600; color:#1d2330; }
   details.spec ul { margin:10px 0 4px; padding-left:18px; line-height:1.7; }
   details.spec code { background:#f1f3f5; padding:1px 5px; border-radius:4px; font-size:12px; }
+  .goaltag { display:inline-block; margin-left:8px; padding:2px 8px; border-radius:999px;
+             background:#eef2ff; color:#3730a3; font-size:12px; }
+  .card .prog { height:6px; background:#eef0f3; border-radius:99px; margin-top:8px; overflow:hidden; }
+  .card .prog > i { display:block; height:100%; border-radius:99px; }
+  .card .goal { font-size:11px; color:#6b7280; margin-top:4px; }
   .note { color:#6b7280; font-size:12px; margin-top:6px; }
   .foot { color:#9ca3af; font-size:11px; margin-top:14px; }
   @media (max-width:760px){ .grid{ grid-template-columns:1fr; } }
@@ -199,7 +211,8 @@ _TEMPLATE = r"""<!DOCTYPE html>
 </head>
 <body>
   <h1>オンライン英会話 成績ダッシュボード</h1>
-  <div class="sub">フィラー（ah / uh / um など言いよどみ）除外。WPM = 総単語数 ÷ <b>生徒の発話時間(分)</b>（音声から推定）。</div>
+  <div class="sub">フィラー（ah / uh / um など言いよどみ）除外。WPM = 総単語数 ÷ <b>生徒の発話時間(分)</b>（音声から推定）。
+    <span class="goaltag">目標: ユニーク単語 <b>500</b> / WPM <b>150</b>（1授業あたり）</span></div>
 
   <div class="cards" id="cards"></div>
 
@@ -236,9 +249,10 @@ _TEMPLATE = r"""<!DOCTYPE html>
 
 <script>
 const DATA = __DATA__;
+const GOALS = __GOALS__;
 const labels = DATA.map(d => d.date);
 
-function card(label, value, prev){
+function card(label, value, prev, goal){
   let delta = '';
   if (prev !== undefined && prev !== null && value !== null){
     const diff = (value - prev).toFixed(value % 1 ? 1 : 0);
@@ -246,26 +260,43 @@ function card(label, value, prev){
     const arrow = diff > 0 ? '▲' : (diff < 0 ? '▼' : '–');
     delta = `<div class="delta ${cls}">${arrow} ${Math.abs(diff)} 前回比</div>`;
   }
+  let goalHtml = '';
+  if (goal){
+    const pct = Math.min(100, Math.round(value / goal * 100));
+    const done = value >= goal;
+    const col = done ? '#16a34a' : '#2563eb';
+    goalHtml = `<div class="prog"><i style="width:${pct}%;background:${col}"></i></div>
+                <div class="goal">目標 ${goal} まで ${done ? '達成 ✓' : (goal-value).toFixed(value%1?1:0)+'（'+pct+'%）'}</div>`;
+  }
   return `<div class="card"><div class="label">${label}</div>
-          <div class="value">${value ?? '-'}</div>${delta}</div>`;
+          <div class="value">${value ?? '-'}</div>${delta}${goalHtml}</div>`;
 }
 
 const last = DATA[DATA.length-1] || {};
 const prev = DATA[DATA.length-2] || {};
 document.getElementById('cards').innerHTML =
-  card('最新WPM', last.wpm, prev.wpm) +
-  card('ユニーク単語', last.unique_words, prev.unique_words) +
+  card('最新WPM', last.wpm, prev.wpm, GOALS.wpm) +
+  card('ユニーク単語', last.unique_words, prev.unique_words, GOALS.unique_words) +
   card('総単語数', last.total_words, prev.total_words) +
   card('総発話数', last.total_utterances, prev.total_utterances) +
   card('レッスン数', DATA.length);
 
 function line(id, key, color){
+  const goal = GOALS[key];
+  const datasets = [{ data: DATA.map(d=>d[key]), label:'実績',
+      borderColor:color, backgroundColor:color+'22', fill:true, tension:.3,
+      pointRadius:4, pointBackgroundColor:color }];
+  if (goal){
+    datasets.push({ data: labels.map(()=>goal), label:'目標 '+goal,
+      borderColor:'#ef4444', borderDash:[6,4], borderWidth:1.5,
+      pointRadius:0, fill:false });
+  }
   new Chart(document.getElementById(id), {
     type:'line',
-    data:{ labels, datasets:[{ data: DATA.map(d=>d[key]),
-      borderColor:color, backgroundColor:color+'22', fill:true, tension:.3,
-      pointRadius:4, pointBackgroundColor:color }]},
-    options:{ plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:false }}}
+    data:{ labels, datasets },
+    options:{ plugins:{legend:{display: !!goal, labels:{boxWidth:12,font:{size:11}}}},
+      scales:{ y:{ beginAtZero:false,
+        suggestedMax: goal ? goal*1.1 : undefined }}}
   });
 }
 line('wpm','wpm','#2563eb');
