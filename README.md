@@ -71,6 +71,28 @@
 > 音声(.mp3)はGit管理外ですが、発話時間は `data/lessons.csv` にキャッシュされ
 > コミットされるので、ページのビルド・公開に音声ファイルは不要です。
 
+## 語彙を効率的に伸ばす（ユニーク単語の増やし方）
+
+授業の発話内容を蓄積し、「まだ使っていない単語」を狙って話すための仕組み。
+
+```bash
+python3 vocab.py                  # 累計語彙・回ごとの新規単語数・頻出語（口ぐせ）を表示
+python3 vocab.py --new 2026-06-25 # その日に初めて使った単語を一覧表示
+```
+
+- 出力 `data/vocabulary.csv` … これまで使った全単語（`word, first_date, total_count`）。
+- `scripts/next_lesson_talking_script.md` … **既存語彙に無い新規単語**で作った
+  「次回そのまま話せるスクリプト」。口ぐせ（`so / very / good / maybe`）の言い換えと、
+  トピック別の新規語彙＋例文＋モノローグ入り。授業前に音読し、本番で使う。
+
+運用ループ:
+1. 授業 → 文字起こし＋音声を `data/` に追加
+2. `python3 vocab.py` で「今回の新規単語」と「使い回している頻出語」を確認
+3. 頻出語の言い換え＋未使用の新規語で `scripts/` のスクリプトを更新
+4. 次の授業でそれを話す → ユニーク単語数が伸びる
+
+ダッシュボードにも **累計語彙数** と **今回の新規単語数** の推移が表示されます。
+
 ### 1ファイルだけ確認したいとき
 ```bash
 python3 analyze.py data/transcripts/2026-06-25_life-in-indonesia-and-japan.txt   # 文字指標のみ
@@ -97,11 +119,14 @@ date,speaking_minutes,source
 ```
 analyze.py              文字指標（発話数・単語数・ユニーク・TTR）
 audio_speaking_time.py  音声から生徒の発話時間を推定（VAD）
+vocab.py                累計語彙・新規単語・頻出語の分析
 build_dashboard.py      全レッスンを集計 → results.csv / index.html
 CALCULATION.md          計算条件の仕様書
+scripts/                次回授業用スピーキング・スクリプト（新規語彙）
 data/transcripts/       文字起こし(.txt)
 data/audio/             音声(.mp3) ※Git管理外
 data/lessons.csv        発話時間のキャッシュ（手動修正可）
+data/vocabulary.csv     累計語彙（word, first_date, total_count）
 data/results.csv        集計結果
 index.html              ダッシュボード（生成物・GitHub Pages公開用）
 ```

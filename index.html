@@ -51,6 +51,8 @@
   <div class="grid">
     <div class="panel"><h2>WPM の推移（発話時間あたり）</h2><canvas id="wpm"></canvas></div>
     <div class="panel"><h2>ユニーク単語数の推移</h2><canvas id="uniq"></canvas></div>
+    <div class="panel"><h2>累計語彙数の推移（使った異なり語の総数）</h2><canvas id="cum"></canvas></div>
+    <div class="panel"><h2>その回の新規単語数</h2><canvas id="neww"></canvas></div>
     <div class="panel"><h2>総単語数の推移</h2><canvas id="words"></canvas></div>
     <div class="panel"><h2>生徒の発話時間(分)の推移</h2><canvas id="spk"></canvas></div>
   </div>
@@ -78,10 +80,10 @@
     </ul>
     <div class="note">詳細な定義は <code>CALCULATION.md</code> を参照。</div>
   </details>
-  <div class="foot">生成日時: 2026-06-25 10:08</div>
+  <div class="foot">生成日時: 2026-06-25 10:16</div>
 
 <script>
-const DATA = [{"date": "2026-06-19", "title": "weather travel and life in japan indonesia", "total_utterances": 49, "total_words": 1500, "unique_words": 334, "speaking_minutes": 12.46, "wpm": 120.4, "wpm_lesson": 60.0, "ttr": 0.223, "filler_count": 124}, {"date": "2026-06-25", "title": "life in indonesia and japan", "total_utterances": 45, "total_words": 1296, "unique_words": 325, "speaking_minutes": 12.62, "wpm": 102.7, "wpm_lesson": 51.8, "ttr": 0.251, "filler_count": 118}];
+const DATA = [{"date": "2026-06-19", "title": "weather travel and life in japan indonesia", "total_utterances": 49, "total_words": 1500, "unique_words": 334, "speaking_minutes": 12.46, "wpm": 120.4, "wpm_lesson": 60.0, "ttr": 0.223, "filler_count": 124, "new_words": 334, "cumulative_vocab": 334}, {"date": "2026-06-25", "title": "life in indonesia and japan", "total_utterances": 45, "total_words": 1296, "unique_words": 325, "speaking_minutes": 12.62, "wpm": 102.7, "wpm_lesson": 51.8, "ttr": 0.251, "filler_count": 118, "new_words": 187, "cumulative_vocab": 521}];
 const GOALS = {"unique_words": 500, "wpm": 150};
 const labels = DATA.map(d => d.date);
 
@@ -110,8 +112,9 @@ const prev = DATA[DATA.length-2] || {};
 document.getElementById('cards').innerHTML =
   card('最新WPM', last.wpm, prev.wpm, GOALS.wpm) +
   card('ユニーク単語', last.unique_words, prev.unique_words, GOALS.unique_words) +
+  card('累計語彙数', last.cumulative_vocab, prev.cumulative_vocab) +
+  card('今回の新規単語', last.new_words, prev.new_words) +
   card('総単語数', last.total_words, prev.total_words) +
-  card('総発話数', last.total_utterances, prev.total_utterances) +
   card('レッスン数', DATA.length);
 
 function line(id, key, color){
@@ -134,6 +137,8 @@ function line(id, key, color){
 }
 line('wpm','wpm','#2563eb');
 line('uniq','unique_words','#16a34a');
+line('cum','cumulative_vocab','#0891b2');
+line('neww','new_words','#db2777');
 line('words','total_words','#d97706');
 line('spk','speaking_minutes','#7c3aed');
 </script>

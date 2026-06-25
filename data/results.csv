@@ -1,3 +1,3 @@
-date,title,total_utterances,total_words,unique_words,speaking_minutes,wpm,wpm_lesson,ttr,filler_count
-2026-06-19,weather travel and life in japan indonesia,49,1500,334,12.46,120.4,60.0,0.223,124
-2026-06-25,life in indonesia and japan,45,1296,325,12.62,102.7,51.8,0.251,118
+date,title,total_utterances,total_words,unique_words,new_words,cumulative_vocab,speaking_minutes,wpm,wpm_lesson,ttr,filler_count
+2026-06-19,weather travel and life in japan indonesia,49,1500,334,334,334,12.46,120.4,60.0,0.223,124
+2026-06-25,life in indonesia and japan,45,1296,325,187,521,12.62,102.7,51.8,0.251,118

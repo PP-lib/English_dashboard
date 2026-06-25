@@ -129,16 +129,27 @@ def collect():
             "wpm_lesson": wpm_lesson,        # 授業時間あたり（参考）
             "ttr": r["ttr"],
             "filler_count": r["filler_count"],
+            "_tokens": analyze.tokenize(text),
         })
     rows.sort(key=lambda x: x["date"])
+
+    # 累計語彙と「その回の新規単語数」を算出（語彙を効率的に伸ばす指標）
+    seen = set()
+    for row in rows:
+        tk = set(row.pop("_tokens"))
+        new = tk - seen
+        row["new_words"] = len(new)
+        seen |= new
+        row["cumulative_vocab"] = len(seen)
+
     _save_lessons_meta(meta)
     return rows
 
 
 def write_csv(rows):
     fields = ["date", "title", "total_utterances", "total_words",
-              "unique_words", "speaking_minutes", "wpm", "wpm_lesson",
-              "ttr", "filler_count"]
+              "unique_words", "new_words", "cumulative_vocab",
+              "speaking_minutes", "wpm", "wpm_lesson", "ttr", "filler_count"]
     with open(RESULTS_CSV, "w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fields)
         w.writeheader()
@@ -219,6 +230,8 @@ _TEMPLATE = r"""<!DOCTYPE html>
   <div class="grid">
     <div class="panel"><h2>WPM の推移（発話時間あたり）</h2><canvas id="wpm"></canvas></div>
     <div class="panel"><h2>ユニーク単語数の推移</h2><canvas id="uniq"></canvas></div>
+    <div class="panel"><h2>累計語彙数の推移（使った異なり語の総数）</h2><canvas id="cum"></canvas></div>
+    <div class="panel"><h2>その回の新規単語数</h2><canvas id="neww"></canvas></div>
     <div class="panel"><h2>総単語数の推移</h2><canvas id="words"></canvas></div>
     <div class="panel"><h2>生徒の発話時間(分)の推移</h2><canvas id="spk"></canvas></div>
   </div>
@@ -277,8 +290,9 @@ const prev = DATA[DATA.length-2] || {};
 document.getElementById('cards').innerHTML =
   card('最新WPM', last.wpm, prev.wpm, GOALS.wpm) +
   card('ユニーク単語', last.unique_words, prev.unique_words, GOALS.unique_words) +
+  card('累計語彙数', last.cumulative_vocab, prev.cumulative_vocab) +
+  card('今回の新規単語', last.new_words, prev.new_words) +
   card('総単語数', last.total_words, prev.total_words) +
-  card('総発話数', last.total_utterances, prev.total_utterances) +
   card('レッスン数', DATA.length);
 
 function line(id, key, color){
@@ -301,6 +315,8 @@ function line(id, key, color){
 }
 line('wpm','wpm','#2563eb');
 line('uniq','unique_words','#16a34a');
+line('cum','cumulative_vocab','#0891b2');
+line('neww','new_words','#db2777');
 line('words','total_words','#d97706');
 line('spk','speaking_minutes','#7c3aed');
 </script>
