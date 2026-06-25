@@ -1,0 +1,8 @@
+# 音声ファイルは大きいのでGit管理外（発話時間は data/lessons.csv にキャッシュ済み）
+data/audio/*.mp3
+data/audio/*.m4a
+data/audio/*.wav
+
+__pycache__/
+*.pyc
+.DS_Store

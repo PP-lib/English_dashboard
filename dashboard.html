@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>オンライン英会話 成績ダッシュボード</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+  body { font-family: -apple-system, "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+         margin: 0; padding: 24px; background:#f5f6f8; color:#1d2330; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color:#6b7280; font-size:13px; margin-bottom:20px; }
+  .cards { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:24px; }
+  .card { background:#fff; border-radius:12px; padding:16px 20px; min-width:150px;
+          box-shadow:0 1px 3px rgba(0,0,0,.08); }
+  .card .label { font-size:12px; color:#6b7280; }
+  .card .value { font-size:28px; font-weight:700; margin-top:4px; }
+  .card .delta { font-size:12px; margin-top:2px; }
+  .up { color:#16a34a; } .down { color:#dc2626; } .flat{ color:#9ca3af; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  .panel { background:#fff; border-radius:12px; padding:16px; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+  .panel h2 { font-size:14px; margin:0 0 10px; color:#374151; }
+  table { width:100%; border-collapse:collapse; background:#fff; border-radius:12px; overflow:hidden;
+          box-shadow:0 1px 3px rgba(0,0,0,.08); margin-top:18px; font-size:13px; }
+  th,td { padding:9px 12px; text-align:right; border-bottom:1px solid #eef0f3; }
+  th:first-child, td:first-child, td.title { text-align:left; }
+  th { background:#fafbfc; color:#6b7280; font-weight:600; }
+  td.title { color:#374151; }
+  @media (max-width:760px){ .grid{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+  <h1>オンライン英会話 成績ダッシュボード</h1>
+  <div class="sub">フィラー（ah / uh / um など言いよどみ）除外。WPM = 総単語数 ÷ <b>生徒の発話時間(分)</b>（音声から推定）。</div>
+
+  <div class="cards" id="cards"></div>
+
+  <div class="grid">
+    <div class="panel"><h2>WPM の推移（発話時間あたり）</h2><canvas id="wpm"></canvas></div>
+    <div class="panel"><h2>ユニーク単語数の推移</h2><canvas id="uniq"></canvas></div>
+    <div class="panel"><h2>総単語数の推移</h2><canvas id="words"></canvas></div>
+    <div class="panel"><h2>生徒の発話時間(分)の推移</h2><canvas id="spk"></canvas></div>
+  </div>
+
+  <table>
+    <thead><tr><th>日付</th><th>レッスン</th><th>総発話数</th><th>総単語数</th>
+    <th>ユニーク単語</th><th>発話時間(分)</th><th>WPM<br>(発話時間)</th>
+    <th>WPM<br>(授業25分)</th><th>TTR</th></tr></thead>
+    <tbody><tr><td>2026-06-25</td><td class='title'>life in indonesia and japan</td><td>45</td><td>1296</td><td>325</td><td>7.59</td><td><b>170.8</b></td><td>51.8</td><td>0.251</td></tr></tbody>
+  </table>
+
+<script>
+const DATA = [{"date": "2026-06-25", "title": "life in indonesia and japan", "total_utterances": 45, "total_words": 1296, "unique_words": 325, "speaking_minutes": 7.59, "wpm": 170.8, "wpm_lesson": 51.8, "ttr": 0.251, "filler_count": 118}];
+const labels = DATA.map(d => d.date);
+
+function card(label, value, prev){
+  let delta = '';
+  if (prev !== undefined && prev !== null && value !== null){
+    const diff = (value - prev).toFixed(value % 1 ? 1 : 0);
+    const cls = diff > 0 ? 'up' : (diff < 0 ? 'down' : 'flat');
+    const arrow = diff > 0 ? '▲' : (diff < 0 ? '▼' : '–');
+    delta = `<div class="delta ${cls}">${arrow} ${Math.abs(diff)} 前回比</div>`;
+  }
+  return `<div class="card"><div class="label">${label}</div>
+          <div class="value">${value ?? '-'}</div>${delta}</div>`;
+}
+
+const last = DATA[DATA.length-1] || {};
+const prev = DATA[DATA.length-2] || {};
+document.getElementById('cards').innerHTML =
+  card('最新WPM', last.wpm, prev.wpm) +
+  card('ユニーク単語', last.unique_words, prev.unique_words) +
+  card('総単語数', last.total_words, prev.total_words) +
+  card('総発話数', last.total_utterances, prev.total_utterances) +
+  card('レッスン数', DATA.length);
+
+function line(id, key, color){
+  new Chart(document.getElementById(id), {
+    type:'line',
+    data:{ labels, datasets:[{ data: DATA.map(d=>d[key]),
+      borderColor:color, backgroundColor:color+'22', fill:true, tension:.3,
+      pointRadius:4, pointBackgroundColor:color }]},
+    options:{ plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:false }}}
+  });
+}
+line('wpm','wpm','#2563eb');
+line('uniq','unique_words','#16a34a');
+line('words','total_words','#d97706');
+line('spk','speaking_minutes','#7c3aed');
+</script>
+</body>
+</html>
