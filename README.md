@@ -2,6 +2,9 @@
 
 オンライン英会話（25分授業）の文字起こしから、日ごとの成績指標を算出して推移を可視化するツールです。
 
+🔗 **ダッシュボード（公開ページ）: https://pp-lib.github.io/english_dashboard/**
+（初回のみ GitHub Pages の有効化が必要です。手順は[下記](#ダッシュボードをwebページgithub-pagesで見る)）
+
 ## 算出する指標
 
 | 指標 | 内容 |
@@ -64,7 +67,7 @@
 1. GitHubのリポジトリ → **Settings** → **Pages**
 2. **Build and deployment** → Source = **Deploy from a branch**
 3. Branch = このブランチ（または `main`）、フォルダ = **/(root)** → Save
-4. 数十秒後、`https://<ユーザー名>.github.io/English_dashboard/` で公開される
+4. 数十秒後、**https://pp-lib.github.io/english_dashboard/** で公開される
 
 以降は、授業を貼り付けて `python3 build_dashboard.py` → `git push` するだけで
 ページが自動更新されます（`index.html` がルートにあるため）。
