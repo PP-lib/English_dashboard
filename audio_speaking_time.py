@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 """音声ファイルから「生徒（あなた）がしゃべっている時間」を推定する。
 
+前提: この録音は生徒（あなた）の声だけが入っている（先生の声は未録音）。
+      よって音声中の発話部分はすべてあなたの発話とみなす（single_speaker=True）。
+
 処理の流れ:
   1. mp3を16kHzモノラルにデコード（miniaudio, ffmpeg不要）
-  2. エネルギーベースのVADで発話フレーム/無音フレームを判定 → 総発話時間
-  3. 発話フレームのMFCC特徴を2話者にクラスタリング（話者ダイアライゼーション）
-  4. 2話者の発話時間を算出。レッスンでは生徒の発話が多い前提で、
-     発話時間が長い方を「生徒」と推定する（--student で固定指定も可）
+  2. エネルギーベースのVADで発話フレーム/無音フレームを判定
+  3. 発話フレームの合計 = あなたの発話時間（無音・先生のターンは除外される）
+
+※ 万一2人の声が入った録音を扱う場合は single_speaker=False で
+  MFCCによる2話者クラスタリングに切り替えられる（発話の長い方を生徒と推定）。
 
 出力: 生徒の推定発話時間（分）。build_dashboard.py がWPMの分母に使う。
 
@@ -109,7 +113,7 @@ def mel_filterbank(nfilt, nfft, sr):
     return fb
 
 
-def diarize(path, student=None):
+def diarize(path, single_speaker=True, student=None):
     x = load_mono16k(path)
     total_sec = len(x) / SR
     frames = frame_signal(x)
@@ -118,10 +122,11 @@ def diarize(path, student=None):
     hop_sec = HOP / SR
     speech_sec = len(speech_idx) * hop_sec
 
-    if len(speech_idx) < 50:
+    # 単一話者録音（あなたの声だけ）: 発話部分=すべてあなた
+    if single_speaker or len(speech_idx) < 50:
         return dict(total_min=total_sec / 60, speech_min=speech_sec / 60,
                     student_min=speech_sec / 60, spk_min=[speech_sec / 60],
-                    student_idx=0)
+                    student_idx=0, mode="single")
 
     feats = mfcc(frames[speech_idx])
     # 平均減算（チャネル正規化）＋標準化
@@ -146,6 +151,7 @@ def diarize(path, student=None):
         student_min=dur[student_idx] / 60,
         spk_min=[d / 60 for d in dur],
         student_idx=student_idx,
+        mode="two",
     )
 
 
@@ -173,16 +179,19 @@ def _main(argv):
     if len(argv) < 2:
         print(__doc__)
         return 1
-    student = int(argv[2]) if len(argv) > 2 else None
-    r = diarize(argv[1], student=student)
+    # 既定は単一話者（あなたの声だけの録音）。"two" 指定で2話者分離。
+    single = not (len(argv) > 2 and argv[2] == "two")
+    r = diarize(argv[1], single_speaker=single)
     print(f"ファイル        : {argv[1]}")
     print(f"音声全体        : {r['total_min']:.2f} 分")
-    print(f"総発話時間(2人) : {r['speech_min']:.2f} 分  "
-          f"(無音 {r['total_min']-r['speech_min']:.2f} 分)")
-    for k, m in enumerate(r["spk_min"]):
-        tag = " ← 生徒(推定)" if k == r["student_idx"] else ""
-        print(f"  話者{k}        : {m:.2f} 分{tag}")
-    print(f"生徒の発話時間  : {r['student_min']:.2f} 分")
+    print(f"発話/無音       : 発話 {r['speech_min']:.2f} 分 / "
+          f"無音 {r['total_min']-r['speech_min']:.2f} 分")
+    if r.get("mode") == "two":
+        for k, m in enumerate(r["spk_min"]):
+            tag = " ← 生徒(推定)" if k == r["student_idx"] else ""
+            print(f"  話者{k}        : {m:.2f} 分{tag}")
+    print(f"生徒の発話時間  : {r['student_min']:.2f} 分"
+          + ("  (録音はあなたの声のみ → 発話全体)" if r.get("mode") == "single" else ""))
     return 0
 
 
