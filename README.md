@@ -39,8 +39,9 @@
 
    必要なPythonパッケージ（初回のみ）:
    ```bash
-   pip install numpy scipy scikit-learn miniaudio
+   pip install numpy scipy scikit-learn miniaudio markdown
    ```
+   （`markdown` は次回授業スクリプトをダッシュボードに表示するため。未導入でも素のテキストで表示されます）
 
 2. 集計を実行する
    ```bash

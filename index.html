@@ -33,6 +33,23 @@
   details.spec code { background:#f1f3f5; padding:1px 5px; border-radius:4px; font-size:12px; }
   .goaltag { display:inline-block; margin-left:8px; padding:2px 8px; border-radius:999px;
              background:#eef2ff; color:#3730a3; font-size:12px; }
+  a.jump { margin-left:8px; font-size:12px; color:#2563eb; text-decoration:none; }
+  a.jump:hover { text-decoration:underline; }
+  details.script { background:#fff; border-radius:12px; padding:16px 22px; margin-top:18px;
+                   box-shadow:0 1px 3px rgba(0,0,0,.08); }
+  details.script > summary { cursor:pointer; font-weight:700; font-size:15px; color:#1d2330; }
+  .md { font-size:13px; line-height:1.75; color:#1d2330; margin-top:10px; }
+  .md h1 { font-size:18px; margin:18px 0 8px; }
+  .md h2 { font-size:15px; margin:18px 0 6px; border-bottom:1px solid #eef0f3; padding-bottom:4px; }
+  .md h3 { font-size:13px; margin:14px 0 4px; color:#374151; }
+  .md table { width:auto; min-width:60%; margin:8px 0; font-size:12px; }
+  .md th { background:#fafbfc; }
+  .md th, .md td { text-align:left; padding:6px 10px; }
+  .md code { background:#f1f3f5; padding:1px 5px; border-radius:4px; font-size:12px; }
+  .md blockquote { margin:8px 0; padding:8px 14px; border-left:3px solid #93c5fd;
+                   background:#f8fafc; color:#374151; border-radius:0 6px 6px 0; }
+  .md strong { color:#1d4ed8; }
+  .md ul { padding-left:20px; }
   .card .prog { height:6px; background:#eef0f3; border-radius:99px; margin-top:8px; overflow:hidden; }
   .card .prog > i { display:block; height:100%; border-radius:99px; }
   .card .goal { font-size:11px; color:#6b7280; margin-top:4px; }
@@ -44,7 +61,8 @@
 <body>
   <h1>オンライン英会話 成績ダッシュボード</h1>
   <div class="sub">フィラー（ah / uh / um など言いよどみ）除外。WPM = 総単語数 ÷ <b>生徒の発話時間(分)</b>（音声から推定）。
-    <span class="goaltag">目標: ユニーク単語 <b>500</b> / WPM <b>150</b>（1授業あたり）</span></div>
+    <span class="goaltag">目標: ユニーク単語 <b>500</b> / WPM <b>150</b>（1授業あたり）</span>
+    <a class="jump" href="#script">▶ 次回授業スクリプトへ</a></div>
 
   <div class="cards" id="cards"></div>
 
@@ -80,7 +98,132 @@
     </ul>
     <div class="note">詳細な定義は <code>CALCULATION.md</code> を参照。</div>
   </details>
-  <div class="foot">生成日時: 2026-06-25 10:16</div>
+  <details class="script" id="script" open>
+    <summary>📝 次回授業スピーキング・スクリプト（クリックで開閉）</summary>
+    <div class="md"><h1>次回授業 スピーキング・スクリプト</h1>
+<p>目的: <strong>まだ使ったことのない単語</strong>を意識して話し、1授業あたりのユニーク単語数を伸ばす。<br />
+あなたの累計語彙（<code>data/vocabulary.csv</code>）に入っていない語を中心に選んでいます。<br />
+話題はいつものトピック（インドネシア勤務・通勤・天気・四国・家族・移民・登山）。</p>
+<p>使い方:<br />
+1. 下の「言い換え」で口ぐせ（so / very / good / maybe …）を別の語に置き換える練習をする<br />
+2. トピック別フレーズを声に出す<br />
+3. 最後の「そのまま話せるモノローグ」を授業の自己紹介・近況報告で使う</p>
+<hr />
+<h2>1. 口ぐせを言い換える（最優先）</h2>
+<p>あなたは <code>so</code>(208回) <code>very</code>(76) <code>good</code>(32) <code>maybe</code>(35) を多用しています。<br />
+同じ意味を別の語で言うだけでユニーク数が一気に増えます。</p>
+<table>
+<thead>
+<tr>
+<th>よく使う語</th>
+<th>言い換え（新規語）</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>very</td>
+<td>extremely / incredibly / remarkably</td>
+<td>It's <strong>extremely</strong> humid today.</td>
+</tr>
+<tr>
+<td>very good</td>
+<td>excellent / superb / outstanding</td>
+<td>The food was <strong>excellent</strong>.</td>
+</tr>
+<tr>
+<td>so (だから)</td>
+<td>therefore / that's why / as a result</td>
+<td><strong>Therefore</strong>, I left early.</td>
+</tr>
+<tr>
+<td>maybe</td>
+<td>perhaps / possibly / presumably</td>
+<td><strong>Perhaps</strong> it will rain.</td>
+</tr>
+<tr>
+<td>a lot of</td>
+<td>numerous / plenty of / a great deal of</td>
+<td>There are <strong>numerous</strong> motorbikes.</td>
+</tr>
+<tr>
+<td>big</td>
+<td>massive / enormous / huge</td>
+<td>An <strong>enormous</strong> traffic jam.</td>
+</tr>
+<tr>
+<td>hard (大変)</td>
+<td>demanding / exhausting / tough</td>
+<td>A <strong>demanding</strong> commute.</td>
+</tr>
+<tr>
+<td>I think</td>
+<td>I suppose / I reckon / it seems to me</td>
+<td><strong>I reckon</strong> it's faster by train.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>2. トピック別 新規語彙＋例文</h2>
+<h3>通勤・交通（commute &amp; traffic）</h3>
+<ul>
+<li><strong>commute（通勤）</strong> / <strong>congestion（渋滞）</strong> / <strong>gridlock（大渋滞）</strong>: My daily <strong>commute</strong> can turn into total <strong>gridlock</strong> when it rains.</li>
+<li><strong>bumper to bumper（数珠つなぎ）</strong>: The cars were <strong>bumper to bumper</strong> for two hours.</li>
+<li><strong>detour（迂回）</strong> / <strong>pothole（道路の穴）</strong>: I had to take a <strong>detour</strong> around the <strong>potholes</strong>.</li>
+<li><strong>outskirts（郊外）</strong> / <strong>rural（田舎の）</strong> / <strong>remote（辺ぴな）</strong>: My factory sits on the <strong>outskirts</strong>, in a <strong>remote</strong>, <strong>rural</strong> area.</li>
+</ul>
+<h3>天気・気候（weather &amp; climate）</h3>
+<ul>
+<li><strong>humid（蒸し暑い）</strong> / <strong>sweltering（うだるように暑い）</strong> / <strong>scorching（焼けつく）</strong>: It was <strong>sweltering</strong>, almost <strong>scorching</strong>.</li>
+<li><strong>power outage / blackout（停電）</strong>: A four-hour <strong>blackout</strong> shut down every air conditioner.</li>
+<li><strong>temperate（温暖な）</strong> / <strong>mild（穏やかな）</strong>: Shikoku has a <strong>temperate</strong>, <strong>mild</strong> climate.</li>
+<li><strong>drought（干ばつ）</strong> / <strong>humidity（湿度）</strong>: The <strong>humidity</strong> is brutal before a <strong>drought</strong> breaks.</li>
+</ul>
+<h3>四国・日本（Japan &amp; Shikoku）</h3>
+<ul>
+<li><strong>prefecture（県）</strong> <em>(既出)</em> → <strong>region / province / countryside</strong> で言い換え</li>
+<li><strong>scenic（景色のよい）</strong> / <strong>picturesque（絵のように美しい）</strong>: Shikoku is <strong>scenic</strong> and <strong>picturesque</strong>.</li>
+<li><strong>agriculture（農業）</strong> / <strong>harvest（収穫）</strong> / <strong>crops（作物）</strong>: The long sunshine is ideal for <strong>agriculture</strong> and a rich <strong>harvest</strong>.</li>
+<li><strong>dialect（方言）</strong> / <strong>accent（なまり）</strong>: Each region has its own <strong>dialect</strong>.</li>
+</ul>
+<h3>火山・地震（natural events）</h3>
+<ul>
+<li><strong>dormant（休火山の）</strong> / <strong>eruption（噴火）</strong> / <strong>evacuate（避難する）</strong>: A <strong>dormant</strong> volcano can <strong>erupt</strong> and force people to <strong>evacuate</strong>.</li>
+<li><strong>diverted（迂回された）</strong> / <strong>layover（乗り継ぎ）</strong>: My flight was <strong>diverted</strong>, so I had a <strong>layover</strong> in Singapore.</li>
+</ul>
+<h3>家族・社会（family &amp; society）</h3>
+<ul>
+<li><strong>newborn（新生児）</strong> / <strong>toddler（よちよち歩きの子）</strong>: With a <strong>newborn</strong>, you wake up every two hours.</li>
+<li><strong>aging population（高齢化）</strong> / <strong>workforce（労働力）</strong> / <strong>immigrant（移民）</strong>: An <strong>aging population</strong> means the <strong>workforce</strong> relies on <strong>immigrants</strong>.</li>
+<li><strong>courteous（礼儀正しい）</strong> / <strong>diligent（勤勉な）</strong> / <strong>hospitable（もてなしの心がある）</strong>: The staff were <strong>courteous</strong> and <strong>diligent</strong>.</li>
+</ul>
+<h3>登山・趣味（the outdoors）</h3>
+<ul>
+<li><strong>solitude（孤独・静けさ）</strong> / <strong>secluded（人里離れた）</strong> / <strong>serene（静かで穏やかな）</strong>: I crave the <strong>solitude</strong> of a <strong>secluded</strong>, <strong>serene</strong> trail.</li>
+<li><strong>endurance（持久力）</strong> / <strong>trail running（トレラン）</strong> / <strong>summit（山頂）</strong>: <strong>Trail running</strong> builds <strong>endurance</strong>; I love reaching the <strong>summit</strong> at dawn.</li>
+</ul>
+<hr />
+<h2>3. そのまま話せるモノローグ（近況報告用）</h2>
+<blockquote>
+<p>For the past two weeks I couldn't attend my lessons because my Japanese boss was<br />
+transferred back to Japan, and there were <strong>numerous</strong> farewell parties. Now I really<br />
+need to <strong>buckle down</strong> and study again.</p>
+<p>Life here can be <strong>demanding</strong>. My <strong>commute</strong> to the factory on the <strong>outskirts</strong> often<br />
+becomes <strong>gridlock</strong>, and lately the weather has been <strong>sweltering</strong>. Yesterday a<br />
+four-hour <strong>blackout</strong> knocked out every air conditioner, which was almost unbearable.</p>
+<p>Still, I miss Shikoku. It has a <strong>temperate</strong>, <strong>mild</strong> climate and <strong>picturesque</strong><br />
+scenery, ideal for <strong>agriculture</strong>. What I crave most is <strong>solitude</strong> — a <strong>secluded</strong>,<br />
+<strong>serene</strong> mountain trail at dawn, where <strong>trail running</strong> rebuilds my <strong>endurance</strong>.</p>
+</blockquote>
+<hr />
+<h2>メンテナンス</h2>
+<ul>
+<li>新規語彙を選び直すときは <code>python3 vocab.py</code> で既存語彙を更新 → このファイルを差し替える。</li>
+<li>授業後は新しい文字起こしを <code>data/transcripts/</code> に追加 → <code>python3 vocab.py</code> で「その回の新規単語数」を確認できる。</li>
+</ul></div>
+  </details>
+
+  <div class="foot">生成日時: 2026-06-25 10:20</div>
 
 <script>
 const DATA = [{"date": "2026-06-19", "title": "weather travel and life in japan indonesia", "total_utterances": 49, "total_words": 1500, "unique_words": 334, "speaking_minutes": 12.46, "wpm": 120.4, "wpm_lesson": 60.0, "ttr": 0.223, "filler_count": 124, "new_words": 334, "cumulative_vocab": 334}, {"date": "2026-06-25", "title": "life in indonesia and japan", "total_utterances": 45, "total_words": 1296, "unique_words": 325, "speaking_minutes": 12.62, "wpm": 102.7, "wpm_lesson": 51.8, "ttr": 0.251, "filler_count": 118, "new_words": 187, "cumulative_vocab": 521}];

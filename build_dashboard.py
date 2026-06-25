@@ -24,6 +24,7 @@ TRANSCRIPT_DIR = os.path.join(ROOT, "data", "transcripts")
 AUDIO_DIR = os.path.join(ROOT, "data", "audio")
 RESULTS_CSV = os.path.join(ROOT, "data", "results.csv")
 LESSONS_META = os.path.join(ROOT, "data", "lessons.csv")
+SCRIPT_MD = os.path.join(ROOT, "scripts", "next_lesson_talking_script.md")
 DASHBOARD_HTML = os.path.join(ROOT, "index.html")  # GitHub Pages公開用
 
 LESSON_LENGTH_MIN = analyze.DEFAULT_LESSON_MINUTES  # 1授業の長さ（参考WPM用）
@@ -156,10 +157,26 @@ def write_csv(rows):
         w.writerows(rows)
 
 
+def _script_html():
+    """次回授業スクリプト(Markdown)をHTMLに変換。無ければ空。"""
+    if not os.path.exists(SCRIPT_MD):
+        return "<p class='note'>scripts/next_lesson_talking_script.md がまだありません。</p>"
+    with open(SCRIPT_MD, encoding="utf-8") as f:
+        md = f.read()
+    try:
+        import markdown
+        return markdown.markdown(
+            md, extensions=["tables", "fenced_code", "nl2br", "sane_lists"])
+    except ImportError:
+        # markdown未インストール時は素のテキストで表示
+        return "<pre>" + md.replace("<", "&lt;") + "</pre>"
+
+
 def write_html(rows):
     from datetime import datetime
     data_json = json.dumps(rows, ensure_ascii=False)
     generated = datetime.now().strftime("%Y-%m-%d %H:%M")
+    script_html = _script_html()
     table_rows = "\n".join(
         f"<tr><td>{r['date']}</td><td class='title'>{r['title']}</td>"
         f"<td>{r['total_utterances']}</td><td>{r['total_words']}</td>"
@@ -172,6 +189,7 @@ def write_html(rows):
     html = (_TEMPLATE.replace("__DATA__", data_json)
             .replace("__GOALS__", json.dumps(GOALS))
             .replace("__TABLE__", table_rows)
+            .replace("__SCRIPT__", script_html)
             .replace("__GENERATED__", generated))
     with open(DASHBOARD_HTML, "w", encoding="utf-8") as f:
         f.write(html)
@@ -212,6 +230,23 @@ _TEMPLATE = r"""<!DOCTYPE html>
   details.spec code { background:#f1f3f5; padding:1px 5px; border-radius:4px; font-size:12px; }
   .goaltag { display:inline-block; margin-left:8px; padding:2px 8px; border-radius:999px;
              background:#eef2ff; color:#3730a3; font-size:12px; }
+  a.jump { margin-left:8px; font-size:12px; color:#2563eb; text-decoration:none; }
+  a.jump:hover { text-decoration:underline; }
+  details.script { background:#fff; border-radius:12px; padding:16px 22px; margin-top:18px;
+                   box-shadow:0 1px 3px rgba(0,0,0,.08); }
+  details.script > summary { cursor:pointer; font-weight:700; font-size:15px; color:#1d2330; }
+  .md { font-size:13px; line-height:1.75; color:#1d2330; margin-top:10px; }
+  .md h1 { font-size:18px; margin:18px 0 8px; }
+  .md h2 { font-size:15px; margin:18px 0 6px; border-bottom:1px solid #eef0f3; padding-bottom:4px; }
+  .md h3 { font-size:13px; margin:14px 0 4px; color:#374151; }
+  .md table { width:auto; min-width:60%; margin:8px 0; font-size:12px; }
+  .md th { background:#fafbfc; }
+  .md th, .md td { text-align:left; padding:6px 10px; }
+  .md code { background:#f1f3f5; padding:1px 5px; border-radius:4px; font-size:12px; }
+  .md blockquote { margin:8px 0; padding:8px 14px; border-left:3px solid #93c5fd;
+                   background:#f8fafc; color:#374151; border-radius:0 6px 6px 0; }
+  .md strong { color:#1d4ed8; }
+  .md ul { padding-left:20px; }
   .card .prog { height:6px; background:#eef0f3; border-radius:99px; margin-top:8px; overflow:hidden; }
   .card .prog > i { display:block; height:100%; border-radius:99px; }
   .card .goal { font-size:11px; color:#6b7280; margin-top:4px; }
@@ -223,7 +258,8 @@ _TEMPLATE = r"""<!DOCTYPE html>
 <body>
   <h1>オンライン英会話 成績ダッシュボード</h1>
   <div class="sub">フィラー（ah / uh / um など言いよどみ）除外。WPM = 総単語数 ÷ <b>生徒の発話時間(分)</b>（音声から推定）。
-    <span class="goaltag">目標: ユニーク単語 <b>500</b> / WPM <b>150</b>（1授業あたり）</span></div>
+    <span class="goaltag">目標: ユニーク単語 <b>500</b> / WPM <b>150</b>（1授業あたり）</span>
+    <a class="jump" href="#script">▶ 次回授業スクリプトへ</a></div>
 
   <div class="cards" id="cards"></div>
 
@@ -258,6 +294,11 @@ _TEMPLATE = r"""<!DOCTYPE html>
     </ul>
     <div class="note">詳細な定義は <code>CALCULATION.md</code> を参照。</div>
   </details>
+  <details class="script" id="script" open>
+    <summary>📝 次回授業スピーキング・スクリプト（クリックで開閉）</summary>
+    <div class="md">__SCRIPT__</div>
+  </details>
+
   <div class="foot">生成日時: __GENERATED__</div>
 
 <script>
