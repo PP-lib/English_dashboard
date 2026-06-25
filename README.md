@@ -49,7 +49,27 @@
 
 3. 生成物
    - `data/results.csv` … 全レッスンの指標一覧
-   - `dashboard.html` … ブラウザで開くとカード＋推移グラフ＋表を表示
+   - `index.html` … ブラウザで開くとカード＋推移グラフ＋表＋計算条件を表示
+
+4. 反映（GitHub Pagesで公開している場合）
+   ```bash
+   git add -A && git commit -m "Add lesson YYYY-MM-DD" && git push
+   ```
+
+## ダッシュボードをWebページ（GitHub Pages）で見る
+
+`index.html` をそのままGitHub Pagesで公開できます（初回のみ設定）:
+
+1. GitHubのリポジトリ → **Settings** → **Pages**
+2. **Build and deployment** → Source = **Deploy from a branch**
+3. Branch = このブランチ（または `main`）、フォルダ = **/(root)** → Save
+4. 数十秒後、`https://<ユーザー名>.github.io/English_dashboard/` で公開される
+
+以降は、授業を貼り付けて `python3 build_dashboard.py` → `git push` するだけで
+ページが自動更新されます（`index.html` がルートにあるため）。
+
+> 音声(.mp3)はGit管理外ですが、発話時間は `data/lessons.csv` にキャッシュされ
+> コミットされるので、ページのビルド・公開に音声ファイルは不要です。
 
 ### 1ファイルだけ確認したいとき
 ```bash
@@ -61,8 +81,10 @@ python3 audio_speaking_time.py data/audio/2026-06-25_life-in-indonesia-and-japan
 `data/lessons.csv` の `speaking_minutes` を書き換える（`source` を `manual` にしておくと自動再計算されない）：
 ```csv
 date,speaking_minutes,source
-2026-06-25,7.59,manual
+2026-06-25,12.62,manual
 ```
+
+> 計算条件の詳細な定義は [`CALCULATION.md`](CALCULATION.md) を参照。
 
 ## 現在の結果
 
@@ -73,13 +95,14 @@ date,speaking_minutes,source
 ## ファイル構成
 ```
 analyze.py              文字指標（発話数・単語数・ユニーク・TTR）
-audio_speaking_time.py  音声から生徒の発話時間を推定（VAD＋話者分離）
-build_dashboard.py      全レッスンを集計 → results.csv / dashboard.html
+audio_speaking_time.py  音声から生徒の発話時間を推定（VAD）
+build_dashboard.py      全レッスンを集計 → results.csv / index.html
+CALCULATION.md          計算条件の仕様書
 data/transcripts/       文字起こし(.txt)
 data/audio/             音声(.mp3) ※Git管理外
 data/lessons.csv        発話時間のキャッシュ（手動修正可）
 data/results.csv        集計結果
-dashboard.html          ダッシュボード（生成物）
+index.html              ダッシュボード（生成物・GitHub Pages公開用）
 ```
 
 ## 補足

@@ -24,7 +24,7 @@ TRANSCRIPT_DIR = os.path.join(ROOT, "data", "transcripts")
 AUDIO_DIR = os.path.join(ROOT, "data", "audio")
 RESULTS_CSV = os.path.join(ROOT, "data", "results.csv")
 LESSONS_META = os.path.join(ROOT, "data", "lessons.csv")
-DASHBOARD_HTML = os.path.join(ROOT, "dashboard.html")
+DASHBOARD_HTML = os.path.join(ROOT, "index.html")  # GitHub Pages公開用
 
 LESSON_LENGTH_MIN = analyze.DEFAULT_LESSON_MINUTES  # 1授業の長さ（参考WPM用）
 
@@ -140,7 +140,9 @@ def write_csv(rows):
 
 
 def write_html(rows):
+    from datetime import datetime
     data_json = json.dumps(rows, ensure_ascii=False)
+    generated = datetime.now().strftime("%Y-%m-%d %H:%M")
     table_rows = "\n".join(
         f"<tr><td>{r['date']}</td><td class='title'>{r['title']}</td>"
         f"<td>{r['total_utterances']}</td><td>{r['total_words']}</td>"
@@ -150,7 +152,9 @@ def write_html(rows):
         f"<td>{r['ttr']}</td></tr>"
         for r in rows
     )
-    html = _TEMPLATE.replace("__DATA__", data_json).replace("__TABLE__", table_rows)
+    html = (_TEMPLATE.replace("__DATA__", data_json)
+            .replace("__TABLE__", table_rows)
+            .replace("__GENERATED__", generated))
     with open(DASHBOARD_HTML, "w", encoding="utf-8") as f:
         f.write(html)
 
@@ -183,6 +187,13 @@ _TEMPLATE = r"""<!DOCTYPE html>
   th:first-child, td:first-child, td.title { text-align:left; }
   th { background:#fafbfc; color:#6b7280; font-weight:600; }
   td.title { color:#374151; }
+  details.spec { background:#fff; border-radius:12px; padding:14px 18px; margin-top:18px;
+                 box-shadow:0 1px 3px rgba(0,0,0,.08); font-size:13px; color:#374151; }
+  details.spec summary { cursor:pointer; font-weight:600; color:#1d2330; }
+  details.spec ul { margin:10px 0 4px; padding-left:18px; line-height:1.7; }
+  details.spec code { background:#f1f3f5; padding:1px 5px; border-radius:4px; font-size:12px; }
+  .note { color:#6b7280; font-size:12px; margin-top:6px; }
+  .foot { color:#9ca3af; font-size:11px; margin-top:14px; }
   @media (max-width:760px){ .grid{ grid-template-columns:1fr; } }
 </style>
 </head>
@@ -205,6 +216,23 @@ _TEMPLATE = r"""<!DOCTYPE html>
     <th>WPM<br>(授業25分)</th><th>TTR</th></tr></thead>
     <tbody>__TABLE__</tbody>
   </table>
+
+  <details class="spec">
+    <summary>計算条件（クリックで展開）</summary>
+    <ul>
+      <li><b>総発話数</b>: 文字起こしの発話セグメント数（空行で区切られた非空行を1発話）。</li>
+      <li><b>総単語数</b>: 英単語トークン数（小文字化、<code>[a-z]+('[a-z]+)?</code>）。
+          <b>フィラー除外</b> = <code>ah, uh, um, hmm, hm, mm, eh, er, oh, huh</code> など。
+          <code>yeah / yes / right / so / like</code> 等の意味語は残す。</li>
+      <li><b>ユニーク単語数</b>: フィラー除外後の異なり語数（レンマ化なし）。</li>
+      <li><b>発話時間</b>: 音声（あなたの声のみの録音）をVADで解析し、発話部分の合計時間。
+          無音・先生のターンは除外。</li>
+      <li><b>WPM（発話時間）</b> = 総単語数 ÷ 発話時間(分)　／　<b>WPM（授業25分）</b> = 総単語数 ÷ 25。</li>
+      <li><b>TTR</b> = ユニーク単語数 ÷ 総単語数（語彙多様性）。</li>
+    </ul>
+    <div class="note">詳細な定義は <code>CALCULATION.md</code> を参照。</div>
+  </details>
+  <div class="foot">生成日時: __GENERATED__</div>
 
 <script>
 const DATA = __DATA__;
