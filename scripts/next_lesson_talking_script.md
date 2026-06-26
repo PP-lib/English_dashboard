@@ -66,17 +66,26 @@
 
 ## 3. そのまま話せるモノローグ（近況報告用）
 
+### ① 近況
 > For the past two weeks I couldn't attend my lessons because my Japanese boss was
 > transferred back to Japan, and there were **numerous** farewell parties. Now I really
 > need to **buckle down** and study again.
->
+
+**和訳:** この2週間、日本人の上司が日本へ帰任することになり、送別会が**いくつもあった**ため、レッスンに参加できませんでした。そろそろ本気で**気を引き締めて**また勉強しないといけません。
+
+### ② インドネシアでの生活
 > Life here can be **demanding**. My **commute** to the factory on the **outskirts** often
 > becomes **gridlock**, and lately the weather has been **sweltering**. Yesterday a
 > four-hour **blackout** knocked out every air conditioner, which was almost unbearable.
->
+
+**和訳:** こちらの生活は**大変なこともあります**。**郊外**にある工場への**通勤**はしばしば**大渋滞**になり、最近の天気は**うだるような暑さ**です。昨日は4時間の**停電**ですべてのエアコンが止まり、ほとんど耐えられないほどでした。
+
+### ③ 四国への思い
 > Still, I miss Shikoku. It has a **temperate**, **mild** climate and **picturesque**
 > scenery, ideal for **agriculture**. What I crave most is **solitude** — a **secluded**,
 > **serene** mountain trail at dawn, where **trail running** rebuilds my **endurance**.
+
+**和訳:** それでも四国が恋しいです。四国は**温暖で穏やかな**気候と**絵のように美しい**景色で、**農業**に最適です。私が一番求めているのは**静けさ（孤独）**——夜明けの**人里離れた**、**静かで穏やかな**山道で、**トレイルランニング**が私の**持久力**を取り戻してくれるのです。
 
 ---
 
